@@ -1,7 +1,6 @@
 # Threshold Ecdsa Ed25519 Agent
 
-> **Domain:** Clinical Decision Support & Biomedical Computing  
-> **Reference Guidelines & Standards:** `Standard Clinical Formulations & ISO/IEC Quality Frameworks`
+> **Domain:** Clinical Decision Support & Biomedical Computing / Post-Quantum Cryptography & Zero-Knowledge
 
 <div align="center">
 
@@ -16,66 +15,98 @@
 
 ---
 
-## 📖 What It Does
+## Overview
 
-**Threshold Ecdsa Ed25519 Agent** is an advanced analytical and computational platform implementing Gennaro-Goldfeder (GG20) and FROST threshold MPC wallet custody supervisor.
+**Threshold Ecdsa Ed25519 Agent** is an advanced analytical and computational platform implementing Gennaro-Goldfeder (GG20) and FROST threshold MPC wallet custody supervision. The system provides multi-agent consensus evaluation with tamper-evident audit logging and PHI (Protected Health Information) outbound protection.
+
+### Architecture
+
+The project consists of two main modules:
+
+1. **`agents/`** - Clinical & Biomedical AI evaluation engine with PHI guard and HMAC-SHA256 audit trail
+2. **`threshold_mpc_wallet/`** - Post-Quantum Cryptography & Zero-Knowledge MPC wallet custody supervisor
 
 ---
 
-## ⚙️ Key Capabilities & Algorithmic Modules
+## Key Features
 
-- **Deterministic Calculation Engine**: Strict compliance with standard reference formulations and thresholds.
-- **Risk & Urgency Classification**: Multi-tier categorization with automated clinical/operational action recommendations.
-- **Validation & Guardrails**: Rigorous input bounds checking and anomaly detection.
+- **Multi-Agent Consensus**: Three specialized workers evaluate tasks with configurable thresholds
+- **PHI Outbound Guard**: Active regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers
+- **Tamper-Evident Audit Trail**: Chained HMAC-SHA256 cryptographically signed logs with integrity verification
+- **FastAPI REST API**: OpenAPI 3.1 REST endpoints for programmatic access
+- **Prometheus Metrics**: Operational telemetry export for monitoring
+- **Active Learning Engine**: Bayesian calibration for worker reliability weighting
+- **CLI Interface**: Command-line tools for single and batch processing
 
 ---
 
-## 💻 CLI Quickstart & Usage
+## Installation
 
-### 1. Guided Interactive Mode
 ```bash
-python cli.py
+pip install -e .
 ```
 
-### 2. Direct Parameterized Evaluation
+### Optional Dependencies
+
 ```bash
-python cli.py --task-id <value> --target <value> --primary <value> --secondary <value>
+pip install fastapi uvicorn  # For REST API server
+pip install pytest           # For running tests
 ```
 
-### Parameter Reference
-- `--task-id`: Specifies input measurement or parameter value.
-- `--target`: Specifies input measurement or parameter value.
-- `--primary`: Specifies input measurement or parameter value.
-- `--secondary`: Specifies input measurement or parameter value.
-- `--critical`: Specifies input measurement or parameter value.
-- `--status`: Specifies input measurement or parameter value.
-- `--input`: Specifies input measurement or parameter value.
-- `--output`: Specifies input measurement or parameter value.
+---
 
-### Input Data Schema
+## Usage
 
-| Field | Description | Requirement |
-|:------|:------------|:------------|
-| `task_id` | Parameter / observation metric | Required |
-| `target_identifier` | Parameter / observation metric | Required |
-| `primary_metric` | Parameter / observation metric | Required |
-| `secondary_metric` | Parameter / observation metric | Required |
-| `is_critical_flag` | Parameter / observation metric | Required |
-| `status_descriptor` | Parameter / observation metric | Required |
+### CLI Commands
+
+#### 1. Single Task Evaluation
+```bash
+python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
+```
+
+#### 2. Batch Processing
+```bash
+python cli.py batch -i sample.csv -o results.csv
+```
+
+#### 3. System Chat
+```bash
+python cli.py chat "What is the system status?"
+```
+
+#### 4. Verify Audit Integrity
+```bash
+python cli.py verify-audit
+```
+
+#### 5. Start REST API Server
+```bash
+python cli.py serve --host 127.0.0.1 --port 8000
+```
+
+### REST API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/metrics` | GET | Prometheus-style metrics |
+| `/api/audit` | POST | Submit task for evaluation |
+| `/api/chat` | POST | Query supervisory chat |
+| `/api/audit/logs` | GET | Retrieve audit trail |
 
 ---
 
-## 🛡️ Security & Enterprise Architecture
+## Configuration
 
-* **Zero-PHI Outbound Interceptor:** Active AST and regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers.
-* **Tamper-Evident HMAC-SHA256 Audit Trail:** Chained, cryptographically signed logs for every evaluation and state transition.
-* **Air-Gapped LLM Reasoning Adapter:** Agnostic integration for local Ollama instances (`llama3`, `mistral`), Claude 3.5 Sonnet, GPT-4o, and deterministic test mocks.
-* **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
-* **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `AUDIT_SECRET_KEY` | Secret key for HMAC-SHA256 audit signing | Auto-generated secure random key |
 
 ---
 
-## 🧪 Testing & Verification
+## Testing
 
 Run the automated test suite:
 
@@ -86,14 +117,29 @@ pytest -v
 Execute high-throughput batch simulation benchmarks:
 
 ```bash
-python simulator.py --tasks 1000 --concurrency 8
+python simulator.py 100
 ```
 
 ---
 
-## 🐳 Container Deployment
+## Security Features
+
+- **Audit Trail**: Cryptographic chain verification with HMAC-SHA256 signatures
+- **PHI Protection**: Regex-based detection and blocking of protected health information
+- **Input Validation**: Numeric bounds checking and NaN/Infinity rejection
+- **Secure Defaults**: Auto-generated cryptographic keys when not explicitly configured
+
+---
+
+## Container Deployment
 
 ```bash
 docker build -t threshold-ecdsa-ed25519-agent .
 docker run -p 8000:8000 threshold-ecdsa-ed25519-agent
 ```
+
+---
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

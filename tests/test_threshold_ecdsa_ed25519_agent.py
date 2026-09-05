@@ -4,11 +4,12 @@ Domain: Clinical & Biomedical AI
 Standard: CAP / CLSI / ISO Standards
 """
 import sys
+import math
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-from agents.base import PHIGuard, AuditLogger, SecurityException
+from agents.base import PHIGuard, AuditLogger, SecurityException, AuditTrail
 from agents.models import SystemTaskPayload, UrgencyLevel, SystemIntegrityStatus
 from agents.workers import InvariantQCWorker, SafetyEscalationWorker, ProtocolConformanceWorker
 from agents.supervisor import SystemSupervisor
@@ -21,6 +22,12 @@ def test_phi_guard_enforcement():
 
     # Clean text passes
     PHIGuard.assert_no_phi("Analytical assay specimen KEY-001 optimal")
+
+
+def test_phi_guard_redaction():
+    redacted = PHIGuard.redact_phi("Contact patient at 555-123-4567")
+    assert "555-123-4567" not in redacted
+    assert "[REDACTED_IDENTIFIER]" in redacted
 
 
 def test_specialized_workers():
@@ -63,3 +70,64 @@ def test_supervisor_consensus_and_audit():
     assert main(["audit", "--task-id", "CLI-TEST-01"]) == 0
     assert main(["chat", "Explain", "specifications"]) == 0
     assert main(["verify-audit"]) == 0
+
+
+def test_numeric_validation_rejects_nan():
+    """Test that NaN values are rejected by input validation."""
+    with pytest.raises(ValueError, match="primary_metric must be a finite number"):
+        SystemTaskPayload(task_id="T-NAN", target_identifier="KEY-01", primary_metric=float("nan"))
+
+
+def test_numeric_validation_rejects_infinity():
+    """Test that Infinity values are rejected by input validation."""
+    with pytest.raises(ValueError, match="primary_metric must be a finite number"):
+        SystemTaskPayload(task_id="T-INF", target_identifier="KEY-01", primary_metric=float("inf"))
+
+
+def test_numeric_validation_rejects_negative_infinity():
+    """Test that negative Infinity values are rejected by input validation."""
+    with pytest.raises(ValueError, match="secondary_metric must be a finite number"):
+        SystemTaskPayload(task_id="T-NEG-INF", target_identifier="KEY-01", primary_metric=10.0, secondary_metric=float("-inf"))
+
+
+def test_numeric_validation_accepts_valid_values():
+    """Test that valid numeric values are accepted."""
+    payload = SystemTaskPayload(task_id="T-VALID", target_identifier="KEY-01", primary_metric=25.0, secondary_metric=10.0)
+    assert payload.primary_metric == 25.0
+    assert payload.secondary_metric == 10.0
+
+
+def test_field_length_validation():
+    """Test that field length limits are enforced."""
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="", target_identifier="KEY-01", primary_metric=10.0)
+
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="T1", target_identifier="", primary_metric=10.0)
+
+
+def test_audit_trail_signature_verification():
+    """Test that audit trail verifies both chain linkage and HMAC signatures."""
+    trail = AuditTrail(secret_key="test-secret-key")
+    trail.log(actor="test_actor", actor_tier="test", event_type="TEST_EVENT", details={"key": "value"})
+    trail.log(actor="test_actor", actor_tier="test", event_type="TEST_EVENT_2", details={"key": "value2"})
+
+    assert trail.verify_integrity() is True
+    assert len(trail.get_trail()) == 2
+
+
+def test_audit_trail_tamper_detection():
+    """Test that tampered audit entries are detected."""
+    trail = AuditTrail(secret_key="test-secret-key-2")
+    trail.log(actor="test_actor", actor_tier="test", event_type="TEST_EVENT", details={"key": "value"})
+    trail.log(actor="test_actor", actor_tier="test", event_type="TEST_EVENT_2", details={"key": "value2"})
+
+    # Tamper with an entry
+    trail.logs[0]["actor"] = "tampered_actor"
+    assert trail.verify_integrity() is False
+
+
+def test_batch_processing_missing_file():
+    """Test that batch processing handles missing files gracefully."""
+    result = main(["batch", "-i", "nonexistent_file.csv"])
+    assert result == 1

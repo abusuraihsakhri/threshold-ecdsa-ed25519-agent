@@ -1,7 +1,6 @@
 """
 Prometheus Operational Metrics Exporter for threshold-ecdsa-ed25519-agent.
 """
-import time
 from typing import Dict, Any
 
 class SystemMetricsCollector:

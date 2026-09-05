@@ -2,7 +2,6 @@
 Live WebSocket Distributed Component Telemetry Streamer for threshold-ecdsa-ed25519-agent.
 """
 import json
-import asyncio
 from typing import List, Dict, Any
 
 class TelemetryBroadcaster:
