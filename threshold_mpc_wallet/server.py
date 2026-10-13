@@ -33,7 +33,7 @@ def create_app():
 
         @app.get("/health")
         def health():
-            return {"status": "HEALTHY", "system": "threshold-ecdsa-ed25519-agent", "domain": "Post-Quantum Cryptography & Zero-Knowledge", "version": "2.0.0-FRONTIER"}
+            return {"status": "HEALTHY", "system": "threshold-ecdsa-ed25519-agent", "domain": "Rule-based telemetry demonstration", "version": "2.0.0-FRONTIER"}
 
         @app.post("/api/audit")
         def api_audit(req: TaskRequest):
