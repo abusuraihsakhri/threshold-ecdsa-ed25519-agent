@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "threshold-ecdsa-ed25519-engine"
 version = "2.0.0"
-description = "Threshold ECDSA / Ed25519 Distributed MPC Wallet Custody Supervisor"
+description = "Rule-based supervisory telemetry evaluator (not a threshold-signature implementation)"
 readme = "README.md"
 authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
 license = { text = "MIT" }
@@ -13,15 +13,22 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Security/Cryptography",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["pydantic>=2,<3"]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.100,<1", "uvicorn>=0.23,<1"]
+test = ["pytest>=7,<10", "httpx>=0.24,<1"]
 
 [project.scripts]
-threshold-ecdsa-ed25519-engine = "threshold_mpc_wallet.cli:main"
+threshold-ecdsa-ed25519-engine = "cli:main"
+threshold-mpc-wallet = "threshold_mpc_wallet.cli:main"
+
+[tool.setuptools]
+packages = ["agents", "threshold_mpc_wallet"]
+py-modules = ["cli", "enrichment", "simulator", "threshold_mpc_wallet_app"]
 
 [project.urls]
-Homepage = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-engine"
-Repository = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-engine.git"
+Homepage = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-agent"
+Repository = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-agent.git"

@@ -1,145 +1,80 @@
-# Threshold Ecdsa Ed25519 Agent
+# Threshold Telemetry Evaluator
 
-> **Domain:** Clinical Decision Support & Biomedical Computing / Post-Quantum Cryptography & Zero-Knowledge
+This repository (`threshold-ecdsa-ed25519-agent`) contains **demonstration-only rule evaluators** for synthetic telemetry. It does **not** implement threshold ECDSA, Ed25519, FROST, GG20, multiparty key custody, zero-knowledge proofs, or post-quantum cryptography. Do not use it to secure wallets, make clinical decisions, or validate protocol conformance.
 
-<div align="center">
+## What works
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+- **Python evaluator:** three deterministic workers in `agents/` check a primary metric (>25), a secondary metric (>12 or a critical flag), and status keywords. The results are merged into a dossier.
+- **In-memory audit chain:** the Python evaluator computes linked HMAC-SHA256 entries. They are lost at process exit; this is not durable, independently attested logging.
+- **Sensitive-pattern screening:** a limited regex guard rejects some common identifiers in the Python API and CLI. It does **not** guarantee de-identification or HIPAA compliance. Never input real sensitive records.
+- **CLI and FastAPI:** audit individual or CSV records and query the deterministic mock response. API documentation is available at `/docs` when the server is running.
+- **Separate wallet-named demo:** `threshold_mpc_wallet/` supplies another non-cryptographic threshold evaluator, accessible through a separate CLI command.
+- **Browser demo:** `web/index.html` runs matching three-worker demonstration rules entirely in JavaScript, without a backend or network submission. Outputs can be downloaded as JSON.
 
-</div>
+## Install and use
 
----
-
-## Overview
-
-**Threshold Ecdsa Ed25519 Agent** is an advanced analytical and computational platform implementing Gennaro-Goldfeder (GG20) and FROST threshold MPC wallet custody supervision. The system provides multi-agent consensus evaluation with tamper-evident audit logging and PHI (Protected Health Information) outbound protection.
-
-### Architecture
-
-The project consists of two main modules:
-
-1. **`agents/`** - Clinical & Biomedical AI evaluation engine with PHI guard and HMAC-SHA256 audit trail
-2. **`threshold_mpc_wallet/`** - Post-Quantum Cryptography & Zero-Knowledge MPC wallet custody supervisor
-
----
-
-## Key Features
-
-- **Multi-Agent Consensus**: Three specialized workers evaluate tasks with configurable thresholds
-- **PHI Outbound Guard**: Active regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers
-- **Tamper-Evident Audit Trail**: Chained HMAC-SHA256 cryptographically signed logs with integrity verification
-- **FastAPI REST API**: OpenAPI 3.1 REST endpoints for programmatic access
-- **Prometheus Metrics**: Operational telemetry export for monitoring
-- **Active Learning Engine**: Bayesian calibration for worker reliability weighting
-- **CLI Interface**: Command-line tools for single and batch processing
-
----
-
-## Installation
+Python 3.10–3.12 is exercised by CI. From a checkout:
 
 ```bash
-pip install -e .
+python -m pip install -e ".[api,test]"
+threshold-ecdsa-ed25519-engine audit --task-id DEMO-1 --target SAMPLE-1 --primary 29.4 --secondary 14.2 --status DISCORDANT
+threshold-ecdsa-ed25519-engine batch --input sample.csv --output results.csv
+threshold-ecdsa-ed25519-engine chat "What does this demo do?"
+threshold-ecdsa-ed25519-engine verify-audit
+threshold-ecdsa-ed25519-engine serve --host 127.0.0.1 --port 8000
 ```
 
-### Optional Dependencies
+A separate packaged entry point is available:
 
 ```bash
-pip install fastapi uvicorn  # For REST API server
-pip install pytest           # For running tests
+threshold-mpc-wallet audit --primary 30 --secondary 14
 ```
 
----
+The root-level `cli.py` and `threshold_mpc_wallet/cli.py` produce distinct schema variants; they have been retained for compatibility.
 
-## Usage
+### REST API
 
-### CLI Commands
+| Method | Route | Purpose |
+| --- | --- | --- |
+| GET | `/health` | Server status |
+| GET | `/metrics` | Basic JSON counters (not Prometheus text) |
+| POST | `/api/audit` | Evaluate a synthetic JSON task |
+| POST | `/api/chat` | Deterministic mock response |
+| GET | `/api/audit/logs` | In-memory audit snapshot and integrity status |
 
-#### 1. Single Task Evaluation
+Example audit request:
+
 ```bash
-python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
+curl -s http://127.0.0.1:8000/api/audit \
+  -H 'Content-Type: application/json' \
+  -d '{"task_id":"DEMO-1","target_identifier":"SAMPLE-1","primary_metric":29.4,"secondary_metric":14.2,"status_descriptor":"DISCORDANT","is_critical_flag":false}'
 ```
 
-#### 2. Batch Processing
+### Browser demo
+
+Open `web/index.html` locally in a current desktop or mobile browser. The HTML uses no external libraries or API calls. Enter only synthetic data; no persistent state is stored and no server-side audit logging occurs. JavaScript, not Python/Pyodide, implements the browser-only rules.
+
+### Container
+
+The Docker service exposes port 8000. **Set an independent secret before starting Docker Compose**; no audit key is committed or generated as a fixed default:
+
 ```bash
-python cli.py batch -i sample.csv -o results.csv
+export AUDIT_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+docker compose up --build
 ```
 
-#### 3. System Chat
-```bash
-python cli.py chat "What is the system status?"
-```
+Avoid binding the API to an untrusted public network: it has **no authentication**, no access control, and an unbounded in-memory registry. The audit key must remain private and stable for a running instance.
 
-#### 4. Verify Audit Integrity
-```bash
-python cli.py verify-audit
-```
-
-#### 5. Start REST API Server
-```bash
-python cli.py serve --host 127.0.0.1 --port 8000
-```
-
-### REST API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/metrics` | GET | Prometheus-style metrics |
-| `/api/audit` | POST | Submit task for evaluation |
-| `/api/chat` | POST | Query supervisory chat |
-| `/api/audit/logs` | GET | Retrieve audit trail |
-
----
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `AUDIT_SECRET_KEY` | Secret key for HMAC-SHA256 audit signing | Auto-generated secure random key |
-
----
-
-## Testing
-
-Run the automated test suite:
+## Test
 
 ```bash
-pytest -v
-```
-
-Execute high-throughput batch simulation benchmarks:
-
-```bash
+python -m pytest -q
+python -m pip check
 python simulator.py 100
 ```
 
----
-
-## Security Features
-
-- **Audit Trail**: Cryptographic chain verification with HMAC-SHA256 signatures
-- **PHI Protection**: Regex-based detection and blocking of protected health information
-- **Input Validation**: Numeric bounds checking and NaN/Infinity rejection
-- **Secure Defaults**: Auto-generated cryptographic keys when not explicitly configured
-
----
-
-## Container Deployment
-
-```bash
-docker build -t threshold-ecdsa-ed25519-agent .
-docker run -p 8000:8000 threshold-ecdsa-ed25519-agent
-```
-
----
+GitHub Actions tests Python 3.10, 3.11, and 3.12, and checks the browser script's JavaScript syntax. All rule thresholds are example constants, **not** accepted cryptographic or clinical reference limits.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE).

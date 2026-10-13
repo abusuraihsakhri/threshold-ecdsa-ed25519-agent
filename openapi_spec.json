@@ -1,83 +1,97 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Threshold Ecdsa Ed25519 Engine API",
-    "description": "Enterprise Distributed Component Platform (Clinical & Cryptographic AI) adhering to CAP / CLSI / NIST Standards.",
-    "version": "3.0.0-ENTERPRISE",
-    "contact": {
-      "name": "Dr. Abu Suraih Sakhri",
-      "url": "https://github.com/abusuraihsakhri"
-    }
+    "title": "Threshold telemetry evaluator demo API",
+    "version": "3.0.0",
+    "description": "Synthetic telemetry evaluation only; does not implement ECDSA, Ed25519, FROST, GG20 or clinical validation. No authentication; bind to localhost."
   },
   "paths": {
     "/health": {
       "get": {
-        "summary": "Health and metadata check",
+        "summary": "Status and version",
         "responses": {
           "200": {
-            "description": "System optimal"
+            "description": "Status object"
           }
         }
       }
     },
     "/metrics": {
       "get": {
-        "summary": "Prometheus operational metrics",
+        "summary": "Basic JSON counters",
         "responses": {
           "200": {
-            "description": "Prometheus text metrics"
+            "description": "JSON object with counts, not Prometheus text"
           }
         }
       }
     },
     "/api/audit": {
       "post": {
-        "summary": "Dispatch task payload across specialized workers",
+        "summary": "Apply three demonstration rules",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "task_id",
+                  "target_identifier",
+                  "primary_metric"
+                ],
                 "properties": {
                   "task_id": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
                   },
                   "target_identifier": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
                   },
                   "primary_metric": {
                     "type": "number"
                   },
                   "secondary_metric": {
-                    "type": "number"
+                    "type": "number",
+                    "default": 0
                   },
                   "status_descriptor": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "NOMINAL"
                   },
                   "is_critical_flag": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "attributes": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "default": {}
                   }
-                },
-                "required": [
-                  "task_id",
-                  "target_identifier",
-                  "primary_metric"
-                ]
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Consensus dossier with HMAC signature"
+            "description": "Demonstration consensus dossier"
+          },
+          "422": {
+            "description": "Invalid or sensitive-pattern-containing payload"
           }
         }
       }
     },
     "/api/chat": {
       "post": {
-        "summary": "Air-gapped supervisory conversational assistant",
+        "summary": "Local deterministic mock response",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -96,17 +110,20 @@
         },
         "responses": {
           "200": {
-            "description": "Supervisory response"
+            "description": "Mock text response"
+          },
+          "422": {
+            "description": "Sensitive-pattern rejection"
           }
         }
       }
     },
     "/api/audit/logs": {
       "get": {
-        "summary": "Retrieve and cryptographically verify HMAC audit trail",
+        "summary": "Snapshot of in-memory HMAC audit trail",
         "responses": {
           "200": {
-            "description": "Cryptographic audit trail"
+            "description": "Current process audit entries and integrity check"
           }
         }
       }

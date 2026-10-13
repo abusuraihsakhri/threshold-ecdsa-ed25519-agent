@@ -124,9 +124,11 @@ def main(argv=None):
             import uvicorn
             from .server import create_app
             app = create_app()
-            if app:
-                print(f"Starting Threshold ECDSA / Ed25519 Distributed MPC Wallet Custody Supervisor on http://{args.host}:{args.port}")
-                uvicorn.run(app, host=args.host, port=args.port)
+            if app is None:
+                print("FastAPI and pydantic are required for serve.", file=sys.stderr)
+                return 1
+            print(f"Starting demonstration evaluator on http://{args.host}:{args.port}")
+            uvicorn.run(app, host=args.host, port=args.port)
         except ImportError:
             print("FastAPI / uvicorn not installed. Run 'pip install fastapi uvicorn'")
             return 1

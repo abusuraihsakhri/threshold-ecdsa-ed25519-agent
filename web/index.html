@@ -1,236 +1,205 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Threshold Ecdsa Ed25519 Engine — Operations Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #090d16;
-            --card: #111827;
-            --border: #1f293d;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.25);
-            --text: #f3f4f6;
-            --text-muted: #9ca3af;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 2rem;
-            min-height: 100vh;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .header-title h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
-        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
-        .badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: var(--accent-glow);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 1.5rem;
-        }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .card h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-        input, select, textarea {
-            width: 100%;
-            padding: 0.65rem 0.9rem;
-            background: #0d1322;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: #fff;
-            font-family: inherit;
-            font-size: 0.9rem;
-        }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-        .btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 0.7rem 1.4rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-        }
-        .btn:hover { background: #2563eb; }
-        .terminal {
-            background: #060911;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: #10b981;
-            height: 380px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-        .metrics-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .metric-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-        }
-        .metric-val { font-size: 1.4rem; font-weight: 700; color: #fff; margin-top: 0.25rem; }
-        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Threshold Telemetry Evaluator · Local Demo</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      --bg:#0c111c; --panel:#151e2d; --border:#35445a; --text:#f0f4fc;
+      --muted:#b1bdce; --accent:#89b8ff; --warning:#ffd17c; --critical:#ff999a; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); line-height:1.5; }
+    main { width:min(1100px, calc(100% - 2rem)); margin:2rem auto 4rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:1.25rem; }
+    h1 { margin:0 0 .25rem; font-size:clamp(1.45rem,3vw,2.1rem); }
+    h2 { margin:0 0 1rem; font-size:1.2rem; }
+    p { margin:.45rem 0; }
+    .muted { color:var(--muted); }
+    .notice { margin:1.25rem 0; padding:1rem; border:1px solid var(--border);
+      border-left:4px solid var(--warning); background:var(--panel); border-radius:.5rem; }
+    .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; margin:1.3rem 0; }
+    .stat, .panel { padding:1.3rem; background:var(--panel); border:1px solid var(--border); border-radius:.8rem; }
+    .stat dt { color:var(--muted); font-size:.85rem; } .stat dd { margin:.2rem 0 0; font-size:1.45rem; font-weight:700; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:1rem; }
+    label { display:block; font-size:.92rem; font-weight:600; margin:.9rem 0 .3rem; }
+    input:not([type=checkbox]) { width:100%; border:1px solid var(--border); background:#0b1320;
+      padding:.7rem .8rem; color:var(--text); border-radius:.4rem; font:inherit; }
+    input:focus-visible, button:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+    .pair { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+    .check { display:flex; align-items:center; gap:.65rem; margin:1.2rem 0; }
+    .check input { width:1.2rem; height:1.2rem; }
+    button { cursor:pointer; background:var(--accent); color:#08121e; border:0; font:inherit;
+      font-weight:700; border-radius:.45rem; padding:.75rem 1rem; }
+    button.secondary { background:transparent; color:var(--text); border:1px solid var(--border); }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+    .actions { display:flex; gap:.6rem; flex-wrap:wrap; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#0b1320; border:1px solid var(--border);
+      border-radius:.5rem; padding:1rem; min-height:18rem; max-height:34rem; overflow-y:auto;
+      font: .82rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .result-head { display:flex; align-items:baseline; flex-wrap:wrap; gap:.6rem; margin-bottom:.75rem; }
+    #resultStatus { font-weight:700; } .warning { color:var(--warning); } .critical { color:var(--critical); }
+    .foot { margin:1rem 0; font-size:.85rem; color:var(--muted); }
+    @media (max-width:750px) { main { margin-top:1rem; } .layout { grid-template-columns:1fr; } }
+    @media (max-width:430px) { .pair { grid-template-columns:1fr; } .stats { gap:.45rem; } .stat { padding:.8rem; } }
+  </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="header-title">
-            <h1>Threshold Ecdsa Ed25519 Engine</h1>
-            <p>Domain: Clinical & Cryptographic AI | Standard: CAP / CLSI / NIST Standards | LabMind-Atlas Architecture</p>
+<main>
+  <header>
+    <h1>Threshold telemetry evaluator</h1>
+    <p class="muted">Local, deterministic demonstration of the repository's three Python evaluation rules</p>
+  </header>
+  <div class="notice" role="note">
+    <strong>Demonstration only.</strong> This application does not implement ECDSA, Ed25519, FROST,
+    GG20, wallet custody, or cryptographic verification. Its thresholds are arbitrary example values,
+    not security or clinical standards. Do not enter secrets, personal data, or real wallet identifiers.
+    Inputs stay in this browser tab; no data is sent to a server.
+  </div>
+  <dl class="stats" aria-label="Current session statistics">
+    <div class="stat"><dt>Tasks evaluated</dt><dd id="taskCount">0</dd></div>
+    <div class="stat"><dt>Warnings</dt><dd id="warningCount">0</dd></div>
+    <div class="stat"><dt>Critical results</dt><dd id="criticalCount">0</dd></div>
+  </dl>
+  <div class="layout">
+    <section class="panel" aria-labelledby="formTitle">
+      <h2 id="formTitle">Evaluate a sample task</h2>
+      <form id="auditForm">
+        <label for="taskId">Task ID</label>
+        <input id="taskId" name="taskId" value="DEMO-001" maxlength="128" required>
+        <label for="targetId">Target identifier (synthetic)</label>
+        <input id="targetId" name="targetId" value="SAMPLE-01" maxlength="128" required>
+        <div class="pair">
+          <div><label for="primary">Primary metric</label>
+            <input id="primary" name="primary" type="number" step="any" value="29.4" required></div>
+          <div><label for="secondary">Secondary metric</label>
+            <input id="secondary" name="secondary" type="number" step="any" value="14.8" required></div>
         </div>
-        <div>
-            <span class="badge">Air-Gapped Active</span>
-            <span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border-color: #10b981;">Zero-PHI Guard Active</span>
+        <label for="descriptor">Status descriptor</label>
+        <input id="descriptor" name="descriptor" maxlength="64" value="DISCORDANT_ANOMALY">
+        <label class="check" for="critical"><input id="critical" type="checkbox" checked>
+          Critical escalation flag</label>
+        <div class="actions">
+          <button type="submit">Run evaluation</button>
+          <button class="secondary" id="resetButton" type="button">Clear results</button>
         </div>
-    </div>
-
-    <div class="metrics-bar">
-        <div class="metric-box">
-            <div class="metric-label">System Status</div>
-            <div class="metric-val" style="color: var(--success);" id="m-status">OPTIMAL</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Tasks Processed</div>
-            <div class="metric-val" id="m-tasks">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Audit Blocks Signed</div>
-            <div class="metric-val" id="m-audit">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">PHI Interceptions</div>
-            <div class="metric-val" style="color: var(--accent);" id="m-phi">0</div>
-        </div>
-    </div>
-
-    <div class="grid">
-        <div class="card">
-            <h2>⚙️ Dispatch Distributed Component Audit</h2>
-            <div class="form-group">
-                <label>Task / Sample ID</label>
-                <input type="text" id="task_id" value="TASK-2026-LIVE-01">
-            </div>
-            <div class="form-group">
-                <label>Target Identifier</label>
-                <input type="text" id="target_id" value="SPECIMEN-ALPHA-77">
-            </div>
-            <div class="form-group">
-                <label>Primary Measurement / Value</label>
-                <input type="number" id="primary_metric" value="29.4" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>Secondary Metric / Kinetic Index</label>
-                <input type="number" id="secondary_metric" value="14.8" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>Status / Phenotype Descriptor</label>
-                <input type="text" id="status_descriptor" value="DISCORDANT_ANOMALY">
-            </div>
-            <div class="form-group">
-                <label><input type="checkbox" id="is_critical" checked> Trigger Emergency / Critical Flag</label>
-            </div>
-            <button class="btn" onclick="runAudit()">Execute Distributed Component Audit</button>
-        </div>
-
-        <div class="card">
-            <h2>📊 Real-Time Consensus Dossier & Audit Log</h2>
-            <div class="terminal" id="outputConsole">// Threshold Ecdsa Ed25519 Engine Operations Console Ready
-// Connection established with Air-Gapped Supervisor
-// Cryptographic HMAC-SHA256 audit ledger loaded.
-// Ready for live task payload dispatch...</div>
-        </div>
-    </div>
-
-    <script>
-        async function runAudit() {
-            const consoleEl = document.getElementById('outputConsole');
-            consoleEl.innerText = "// Dispatching task across specialized workers...
-// Invoking InvariantQCWorker, SafetyEscalationWorker, ProtocolWorker...";
-
-            const payload = {
-                task_id: document.getElementById('task_id').value,
-                target_identifier: document.getElementById('target_id').value,
-                primary_metric: parseFloat(document.getElementById('primary_metric').value),
-                secondary_metric: parseFloat(document.getElementById('secondary_metric').value),
-                status_descriptor: document.getElementById('status_descriptor').value,
-                is_critical_flag: document.getElementById('is_critical').checked
-            };
-
-            try {
-                const res = await fetch('/api/audit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                consoleEl.innerText = JSON.stringify(data, null, 2);
-                document.getElementById('m-tasks').innerText = parseInt(document.getElementById('m-tasks').innerText) + 1;
-                document.getElementById('m-audit').innerText = parseInt(document.getElementById('m-audit').innerText) + 1;
-            } catch (err) {
-                consoleEl.innerText = "// Offline / Simulation Output:\n" + JSON.stringify({
-                    dossier_id: "DOSSIER-SIM-" + Math.floor(Math.random()*10000),
-                    system: "threshold-ecdsa-ed25519-engine",
-                    domain: "Clinical & Cryptographic AI",
-                    task_id: payload.task_id,
-                    overall_urgency: payload.is_critical_flag ? "CRITICAL_STAT_PANIC" : "ELEVATED_RISK",
-                    integrity_status: "DISCORDANT_ANOMALY",
-                    alerts: [
-                        { worker: "InvariantQCWorker", alert: "Primary metric exceeds upper reference bound" },
-                        { worker: "SafetyEscalationWorker", alert: "Critical emergency interlock flag active" }
-                    ],
-                    audit_hash: "HMAC_SHA256_e83f9a72b941d6c381f9"
-                }, null, 2);
-            }
-        }
-    </script>
+      </form>
+      <p class="foot">Rules: primary &gt; 25; secondary &gt; 12 or critical flag; descriptor contains DISCORDANT, ANOMALY, MUTANT, VIOLATION, FAIL, or REJECT. No signing or consensus protocol is executed.</p>
+    </section>
+    <section class="panel" aria-labelledby="resultTitle">
+      <h2 id="resultTitle">Evaluation result</h2>
+      <div class="result-head"><span id="resultStatus" role="status" aria-live="polite">No task evaluated</span></div>
+      <pre id="output" aria-label="JSON result" tabindex="0">Run an evaluation to inspect the local JSON dossier.</pre>
+      <button type="button" id="downloadButton" class="secondary" disabled>Download result JSON</button>
+    </section>
+  </div>
+  <p class="foot">Source rules: <code>agents/workers.py</code> · No persistent state, telemetry, cryptographic signature, or backend API.</p>
+</main>
+<script>
+  "use strict";
+  const form = document.getElementById("auditForm");
+  const output = document.getElementById("output");
+  const status = document.getElementById("resultStatus");
+  const download = document.getElementById("downloadButton");
+  let tasks = 0, warnings = 0, critical = 0, lastResult = null;
+  const urgency = {
+    routine: "ROUTINE",
+    elevated: "ELEVATED_RISK",
+    critical: "CRITICAL_STAT_PANIC"
+  };
+  function evaluate(input) {
+    const alerts = [];
+    function alert(origin_worker, level, summary, details) {
+      alerts.push({origin_worker, urgency:level, summary, technical_details:details});
+    }
+    if (input.primary_metric > 25) {
+      alert("InvariantQCWorker", urgency.elevated, "Primary Metric Threshold Exceeded",
+        "Primary metric exceeds demo threshold 25.");
+    }
+    if (input.is_critical_flag || input.secondary_metric > 12) {
+      alert("SafetyEscalationWorker", input.is_critical_flag ? urgency.critical : urgency.elevated,
+        "Critical Safety Interlock Triggered",
+        "Demo secondary threshold (12) or critical flag triggered; no real interlock executed.");
+    }
+    const descriptor = input.status_descriptor.toUpperCase();
+    if (["DISCORDANT", "ANOMALY", "MUTANT", "VIOLATION", "FAIL", "REJECT"].some(word => descriptor.includes(word))) {
+      alert("ProtocolConformanceWorker", urgency.elevated,
+        "Protocol Conformance Discordance Detected",
+        "Descriptor matches a demo anomaly keyword; no protocol conformance test performed.");
+    }
+    const criticalAlerts = alerts.filter(a => a.urgency === urgency.critical).length;
+    const overall = criticalAlerts > 0 ? urgency.critical : alerts.length > 0 ? urgency.elevated : urgency.routine;
+    const integrity = criticalAlerts > 0 ? "RECALIBRATION_REQUIRED" :
+      alerts.length > 0 ? "DISCORDANT_ANOMALY" : "VALIDATED_OPTIMAL";
+    return {
+      mode: "LOCAL_DEMONSTRATION_ONLY",
+      task_id: input.task_id,
+      target_identifier: input.target_identifier,
+      overall_urgency: overall,
+      integrity_status: integrity,
+      total_alerts: alerts.length,
+      critical_alerts_count: criticalAlerts,
+      alerts,
+      note: "No cryptographic or clinical verification performed."
+    };
+  }
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const primary = Number(document.getElementById("primary").value);
+    const secondary = Number(document.getElementById("secondary").value);
+    if (!Number.isFinite(primary) || !Number.isFinite(secondary)) {
+      status.textContent = "Enter finite numbers for both metrics.";
+      status.className = "critical";
+      return;
+    }
+    const input = {
+      task_id: document.getElementById("taskId").value.trim(),
+      target_identifier: document.getElementById("targetId").value.trim(),
+      primary_metric: primary,
+      secondary_metric: secondary,
+      status_descriptor: document.getElementById("descriptor").value,
+      is_critical_flag: document.getElementById("critical").checked
+    };
+    if (!input.task_id || !input.target_identifier) {
+      status.textContent = "Task and target identifiers cannot be blank.";
+      status.className = "critical";
+      return;
+    }
+    lastResult = evaluate(input);
+    output.textContent = JSON.stringify(lastResult, null, 2);
+    status.textContent = lastResult.overall_urgency;
+    status.className = lastResult.overall_urgency === urgency.critical ? "critical" :
+      lastResult.overall_urgency === urgency.elevated ? "warning" : "";
+    tasks++;
+    if (lastResult.overall_urgency === urgency.elevated) warnings++;
+    if (lastResult.overall_urgency === urgency.critical) critical++;
+    document.getElementById("taskCount").textContent = String(tasks);
+    document.getElementById("warningCount").textContent = String(warnings);
+    document.getElementById("criticalCount").textContent = String(critical);
+    download.disabled = false;
+  });
+  download.addEventListener("click", () => {
+    if (!lastResult) return;
+    const blob = new Blob([JSON.stringify(lastResult, null, 2) + "\n"], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "threshold-evaluation.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("resetButton").addEventListener("click", () => {
+    tasks = 0; warnings = 0; critical = 0; lastResult = null;
+    ["taskCount", "warningCount", "criticalCount"].forEach(id => {
+      document.getElementById(id).textContent = "0";
+    });
+    status.textContent = "No task evaluated";
+    status.className = "";
+    output.textContent = "Run an evaluation to inspect the local JSON dossier.";
+    download.disabled = true;
+  });
+</script>
 </body>
 </html>
