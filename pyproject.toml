@@ -27,6 +27,10 @@ test = ["pytest>=7,<10", "httpx>=0.24,<1"]
 threshold-ecdsa-ed25519-engine = "cli:main"
 threshold-mpc-wallet = "threshold_mpc_wallet.cli:main"
 
+[tool.setuptools]
+packages = ["agents", "threshold_mpc_wallet"]
+py-modules = ["cli", "enrichment", "simulator", "threshold_mpc_wallet_app"]
+
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-agent"
 Repository = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-engine.git"
