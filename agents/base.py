@@ -25,7 +25,7 @@ PHI_PATTERNS = [
 
 
 class SecurityException(Exception):
-    """Raised when outbound data violates HIPAA Safe Harbor or contains raw PHI."""
+    """Raised when a string matches the limited sensitive-data patterns."""
     pass
 
 
@@ -61,7 +61,7 @@ def _generate_secure_key() -> bytes:
 
 
 class AuditTrail:
-    """Cryptographic Tamper-Evident HMAC-SHA256 Audit Trail."""
+    """In-memory HMAC chain; not durable or independently attested."""
     def __init__(self, secret_key: Optional[str] = None):
         if secret_key:
             self.secret_key = secret_key.encode("utf-8")
