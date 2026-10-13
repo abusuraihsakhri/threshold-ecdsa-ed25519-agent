@@ -13,8 +13,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Security/Cryptography",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 requires-python = ">=3.9"
 dependencies = ["pydantic>=2,<3"]
@@ -33,4 +31,4 @@ py-modules = ["cli", "enrichment", "simulator", "threshold_mpc_wallet_app"]
 
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-agent"
-Repository = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-engine.git"
+Repository = "https://github.com/abusuraihsakhri/threshold-ecdsa-ed25519-agent.git"
