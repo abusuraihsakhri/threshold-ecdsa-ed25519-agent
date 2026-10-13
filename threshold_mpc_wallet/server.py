@@ -15,7 +15,7 @@ def create_app():
 
         app = FastAPI(
             title="Threshold ECDSA / Ed25519 Distributed MPC Wallet Custody Supervisor",
-            description="Implements Gennaro-Goldfeder (GG20) and FROST (Flexible Round-Optimized Schnorr Threshold) signatures with zero private key assembly at rest.",
+            description="Demonstration-only numeric threshold evaluator. Does not implement ECDSA, Ed25519, FROST, GG20, or key custody.",
             version="2.0.0-FRONTIER",
         )
 
